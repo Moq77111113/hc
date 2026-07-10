@@ -11,12 +11,18 @@ type Scheme struct {
 }
 
 var (
-	HTTP     = Scheme{Name: "http"}
-	HTTPS    = Scheme{Name: "https"}
-	TCP      = Scheme{Name: "tcp"}
+	// HTTP probes http:// targets with a request and checks the status code.
+	HTTP = Scheme{Name: "http"}
+	// HTTPS probes https:// targets over TLS.
+	HTTPS = Scheme{Name: "https"}
+	// TCP probes tcp:// targets by establishing a connection.
+	TCP = Scheme{Name: "tcp"}
+	// Postgres probes postgres:// (alias pg://) targets via the startup handshake.
 	Postgres = Scheme{Name: "postgres", Aliases: []string{"pg"}}
-	MySQL    = Scheme{Name: "mysql"}
-	Redis    = Scheme{Name: "redis"}
+	// MySQL probes mysql:// targets via the server handshake packet.
+	MySQL = Scheme{Name: "mysql"}
+	// Redis probes redis:// targets with an inline PING.
+	Redis = Scheme{Name: "redis"}
 )
 
 // Catalog is every scheme; the full hc binary ships all of them.
