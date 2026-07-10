@@ -18,4 +18,8 @@ func main() {
 	if err := writeCIMatrix(".github/workflows/ci.yml"); err != nil {
 		log.Fatalf("ci matrix: %v", err)
 	}
+
+	if err := writeReadme("README.md"); err != nil {
+		log.Fatalf("readme: %v", err)
+	}
 }

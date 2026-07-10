@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 	"strings"
 	"text/template"
 )
@@ -108,5 +107,5 @@ func renderGoreleaser(bundles []Bundle) string {
 
 // writeGoreleaser renders and writes the config to path.
 func writeGoreleaser(path string) error {
-	return os.WriteFile(path, []byte(renderGoreleaser(Bundles)), 0o644) //nolint:gosec // generated config, committed to git, world-readable is fine
+	return writeGenerated(path, renderGoreleaser(Bundles))
 }
