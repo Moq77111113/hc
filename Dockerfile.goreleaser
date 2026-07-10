@@ -1,0 +1,8 @@
+# GoReleaser copies the prebuilt, already-signed binary into scratch. The image
+# holds nothing but hc, byte-identical to the released download. The source-build
+# Dockerfile stays for `go`-from-scratch builds and the integration tests.
+FROM scratch
+ARG TARGETPLATFORM
+ARG BIN
+COPY ${TARGETPLATFORM}/${BIN} /hc
+ENTRYPOINT ["/hc"]
