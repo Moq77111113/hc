@@ -1,4 +1,4 @@
-//go:build !hc_slim || hc_postgres || hc_redis
+//go:build !hc_slim || hc_postgres || hc_redis || hc_mysql
 
 package probe
 

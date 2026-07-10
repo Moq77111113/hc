@@ -25,7 +25,7 @@ builds:
     binary: hc-sql
     main: .
     env: [CGO_ENABLED=0]
-    flags: [-trimpath, -tags, "hc_slim hc_tcp hc_postgres"]
+    flags: [-trimpath, -tags, "hc_slim hc_tcp hc_postgres hc_mysql"]
     ldflags: ["-s -w -X main.version={{ .Version }}"]
     mod_timestamp: "{{ .CommitTimestamp }}"
     goos: [linux]

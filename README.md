@@ -42,6 +42,7 @@ The URL scheme picks the probe:
 hc http://localhost:8080/health   # healthy on 2xx-3xx
 hc tcp://localhost:6379           # healthy if the TCP connection opens
 hc postgres://localhost:5432      # healthy if PostgreSQL accepts connections
+hc mysql://localhost:3306         # healthy if MySQL answers its handshake
 ```
 
 | Scheme            | Healthy when                                         |
@@ -49,6 +50,8 @@ hc postgres://localhost:5432      # healthy if PostgreSQL accepts connections
 | `http` / `https`  | response status is `2xx` or `3xx`                    |
 | `tcp`             | the TCP connection is established                    |
 | `postgres` / `pg` | the server answers the readiness handshake (no auth) |
+| `mysql`           | the server sends its handshake greeting (no auth)    |
+| `redis`           | the server answers `PING` (`+PONG` or `-NOAUTH`)     |
 
 `https` checks that the service answers over TLS; it does **not** validate the
 certificate. hc reports liveness, not cert validity, so it works against internal
@@ -91,11 +94,11 @@ Compose live in [`deploy/`](deploy/).
 The default binary carries every probe. Need less surface? Pull a variant, and
 the probes you don't use aren't compiled in:
 
-| Image     | Probes            | Size     |
-| --------- | ----------------- | -------- |
-| `hc`      | all               | ~4.5 MB  |
-| `hc-core` | http, https, tcp  | ~4.5 MB  |
-| `hc-sql`  | tcp, postgres     | ~2.3 MB  |
+| Image     | Probes               | Size     |
+| --------- | -------------------- | -------- |
+| `hc`      | all                  | ~4.5 MB  |
+| `hc-core` | http, https, tcp     | ~4.5 MB  |
+| `hc-sql`  | tcp, postgres, mysql | ~2.3 MB  |
 
 ```dockerfile
 COPY --from=ghcr.io/moq77111113/hc-sql /hc /hc
@@ -125,7 +128,7 @@ hc version
 
 ## Missing a protocol?
 
-`redis`, `mysql`, and `amqp` are on the list. Need one of those, or a scheme
+`amqp` is on the list. Need it, or a scheme
 that isn't here? [Open an issue](https://github.com/Moq77111113/hc/issues), or send a PR.
 
 ## Philosophy
