@@ -10,13 +10,16 @@ import (
 
 func init() { register("http", httpProber{}) }
 
+// defaultHTTPPort is used when the target URL omits a port.
+const defaultHTTPPort = "80"
+
 // httpProber issues a minimal HTTP/1.1 GET over a plain TCP connection and
 // treats any 2xx/3xx status as healthy.
 type httpProber struct{}
 
 func (httpProber) Probe(ctx context.Context, target *url.URL) error {
 	var d net.Dialer
-	conn, err := d.DialContext(ctx, "tcp", hostPort(target, "80"))
+	conn, err := d.DialContext(ctx, "tcp", hostPort(target, defaultHTTPPort))
 	if err != nil {
 		return err
 	}
