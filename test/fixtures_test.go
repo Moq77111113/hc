@@ -48,6 +48,21 @@ func pgRequest() testcontainers.ContainerRequest {
 	}
 }
 
+func redisRequest() testcontainers.ContainerRequest {
+	return testcontainers.ContainerRequest{
+		Image:        "redis:8-alpine",
+		ExposedPorts: []string{"6379/tcp"},
+		WaitingFor:   wait.ForLog("Ready to accept connections"),
+	}
+}
+
+// redisAuthRequest requires a password, so an unauthenticated PING gets -NOAUTH.
+func redisAuthRequest() testcontainers.ContainerRequest {
+	req := redisRequest()
+	req.Cmd = []string{"redis-server", "--requirepass", "secret"}
+	return req
+}
+
 func nginxRequest() testcontainers.ContainerRequest {
 	return testcontainers.ContainerRequest{
 		Image:        "nginx:alpine",

@@ -31,6 +31,27 @@ func TestTCPProbe(t *testing.T) {
 	}
 }
 
+func TestRedisProbe(t *testing.T) {
+	testcontainers.SkipIfProviderIsNotHealthy(t)
+	addr := endpoint(t, start(t, redisRequest()), "6379")
+
+	if code, out := runHC(t, "redis://"+addr); code != 0 {
+		t.Errorf("open: exit %d, want 0\n%s", code, out)
+	}
+	if code, out := runHC(t, "redis://"+hostOf(t, addr)+":1"); code != 1 {
+		t.Errorf("closed: exit %d, want 1\n%s", code, out)
+	}
+}
+
+func TestRedisProbeNoAuthIsHealthy(t *testing.T) {
+	testcontainers.SkipIfProviderIsNotHealthy(t)
+	addr := endpoint(t, start(t, redisAuthRequest()), "6379")
+
+	if code, out := runHC(t, "redis://"+addr); code != 0 {
+		t.Errorf("noauth: exit %d, want 0\n%s", code, out)
+	}
+}
+
 func TestHTTPProbe(t *testing.T) {
 	testcontainers.SkipIfProviderIsNotHealthy(t)
 	addr := endpoint(t, start(t, nginxRequest()), "80")
