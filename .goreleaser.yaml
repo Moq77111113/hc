@@ -1,0 +1,97 @@
+version: 2
+
+builds:
+  - id: hc
+    binary: hc
+    main: .
+    env: [CGO_ENABLED=0]
+    flags: [-trimpath]
+    ldflags: ["-s -w -X main.version={{ .Version }}"]
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    goos: [linux]
+    goarch: [amd64, arm64]
+
+  - id: hc-core
+    binary: hc-core
+    main: .
+    env: [CGO_ENABLED=0]
+    flags: [-trimpath, -tags, "hc_slim hc_http hc_https hc_tcp"]
+    ldflags: ["-s -w -X main.version={{ .Version }}"]
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    goos: [linux]
+    goarch: [amd64, arm64]
+
+  - id: hc-sql
+    binary: hc-sql
+    main: .
+    env: [CGO_ENABLED=0]
+    flags: [-trimpath, -tags, "hc_slim hc_tcp hc_postgres"]
+    ldflags: ["-s -w -X main.version={{ .Version }}"]
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    goos: [linux]
+    goarch: [amd64, arm64]
+
+# Raw binaries, not tarballs: hc is a single file you COPY into an image.
+archives:
+  - id: bins
+    formats: [binary]
+    name_template: "{{ .Binary }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+sboms:
+  - artifacts: binary
+
+dockers_v2:
+  - id: hc
+    ids: [hc]
+    dockerfile: Dockerfile.goreleaser
+    images: ["ghcr.io/moq77111113/hc"]
+    tags: ["{{ .Version }}", latest]
+    platforms: [linux/amd64, linux/arm64]
+    build_args: { BIN: hc }
+    labels: &labels
+      org.opencontainers.image.source: https://github.com/Moq77111113/hc
+      org.opencontainers.image.version: "{{ .Version }}"
+      org.opencontainers.image.revision: "{{ .FullCommit }}"
+
+  - id: hc-core
+    ids: [hc-core]
+    dockerfile: Dockerfile.goreleaser
+    images: ["ghcr.io/moq77111113/hc-core"]
+    tags: ["{{ .Version }}", latest]
+    platforms: [linux/amd64, linux/arm64]
+    build_args: { BIN: hc-core }
+    labels: *labels
+
+  - id: hc-sql
+    ids: [hc-sql]
+    dockerfile: Dockerfile.goreleaser
+    images: ["ghcr.io/moq77111113/hc-sql"]
+    tags: ["{{ .Version }}", latest]
+    platforms: [linux/amd64, linux/arm64]
+    build_args: { BIN: hc-sql }
+    labels: *labels
+
+# Keyless cosign, same GitHub OIDC identity for both surfaces, logged to Rekor.
+signs:
+  - cmd: cosign
+    signature: "${artifact}.sig"
+    certificate: "${artifact}.pem"
+    args:
+      - sign-blob
+      - "--yes"
+      - "--output-signature=${signature}"
+      - "--output-certificate=${certificate}"
+      - "${artifact}"
+    artifacts: checksum
+
+docker_signs:
+  - cmd: cosign
+    artifacts: "" # dockers_v2 images
+    args: ["sign", "--yes", "${artifact}@${digest}"]
+
+release:
+  prerelease: auto

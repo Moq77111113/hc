@@ -13,6 +13,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"net/url"
 	"os"
 	"time"
@@ -25,12 +26,28 @@ const (
 	exitUnhealthy = 1
 )
 
+// version is the release identifier, injected at build time via
+// -ldflags "-X main.version=<tag>". Unset builds report "dev".
+var version = "dev"
+
 func main() {
 	if len(os.Args) >= 2 && os.Args[1] == "install" {
 		runInstall(os.Args[2:])
 		return
 	}
+	if len(os.Args) >= 2 && os.Args[1] == "version" {
+		os.Exit(runVersion(os.Stdout))
+	}
 	os.Exit(runProbe())
+}
+
+// runVersion prints the build version and exits healthy, so `hc version`
+// composes with the same exit-code contract as every other invocation.
+func runVersion(out io.Writer) int {
+	if _, err := fmt.Fprintf(out, "hc %s\n", version); err != nil {
+		return exitUnhealthy
+	}
+	return exitHealthy
 }
 
 // runInstall handles the `hc install DEST` subcommand: it self-copies the
@@ -83,7 +100,8 @@ func fail(format string, args ...any) int {
 
 func usage() {
 	fmt.Fprintf(os.Stderr, "usage: hc [-timeout DUR] TARGET\n")
-	fmt.Fprintf(os.Stderr, "       hc install DEST\n\n")
+	fmt.Fprintf(os.Stderr, "       hc install DEST\n")
+	fmt.Fprintf(os.Stderr, "       hc version\n\n")
 	fmt.Fprintf(os.Stderr, "TARGET is a URL whose scheme selects the probe: %s\n\n", probe.SupportedSchemes())
 	fmt.Fprintf(os.Stderr, "examples:\n")
 	fmt.Fprintf(os.Stderr, "  hc http://localhost:8080/health\n")
