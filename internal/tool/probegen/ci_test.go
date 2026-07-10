@@ -11,11 +11,11 @@ func TestRenderMatrix(t *testing.T) {
 	out := renderMatrix(probe.Catalog, Bundles)
 
 	checks := []string{
-		`          - "hc_slim hc_http"`,                     // per-scheme
-		`          - "hc_slim hc_redis"`,                    // the previously missing one
-		`          - "hc_slim hc_mysql"`,                    // the previously missing one
-		`          - "hc_slim hc_http hc_https hc_tcp"`,     // per-bundle hc-core
-		`          - "hc_slim hc_tcp hc_postgres hc_mysql"`, // per-bundle hc-sql
+		`          - "hc_slim hc_http"`,
+		`          - "hc_slim hc_redis"`,
+		`          - "hc_slim hc_mysql"`,
+		`          - "hc_slim hc_http hc_https hc_tcp"`,
+		`          - "hc_slim hc_tcp hc_postgres hc_mysql"`,
 	}
 	for _, c := range checks {
 		if !strings.Contains(out, c) {
