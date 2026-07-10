@@ -42,6 +42,16 @@ jobs:
       - run: go build -tags "${{ matrix.tags }}" -o /dev/null .
       - run: go test -tags "${{ matrix.tags }}" ./...
 
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.26"
+      - run: go generate ./...
+      - run: git diff --exit-code
+
   lint:
     runs-on: ubuntu-latest
     steps:
