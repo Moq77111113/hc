@@ -2,6 +2,7 @@ package test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -19,7 +20,7 @@ func mysqlRequest() testcontainers.ContainerRequest {
 		Image:        mysqlImage,
 		ExposedPorts: []string{mysqlPort + "/tcp"},
 		Env:          map[string]string{"MYSQL_ROOT_PASSWORD": "pw"},
-		WaitingFor:   wait.ForLog("ready for connections").WithOccurrence(2),
+		WaitingFor:   wait.ForExposedPort().WithStartupTimeout(2 * time.Minute),
 	}
 }
 
