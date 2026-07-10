@@ -22,10 +22,13 @@ volume seeded by `hc install DEST` (see `deploy/`). It stays one-shot either way
 
 In scope:
 
-- Schemes: `http`, `https`, `tcp`, `postgres`/`pg`.
-- Modular builds: `hc_slim` opts out of every probe, per-scheme tags
-  (`hc_http`, `hc_https`, `hc_tcp`, `hc_postgres`) opt back in. Published as
-  image variants (`hc`, `hc-core`, `hc-sql`) via the `HC_TAGS` build arg.
+- Schemes: one connect-level readiness probe per URL scheme. The registry is
+  the source of truth — `hc` with no args (or `SupportedSchemes()`) lists the
+  live set; don't maintain a roster here.
+- Modular builds: `hc_slim` opts out of every probe, a per-scheme `hc_<scheme>`
+  tag opts one back in. The `HC_TAGS` build arg drives a local `docker build`;
+  the published image variants (`hc` full, plus the slim bundles in
+  `.goreleaser.yaml`) come from each build's `-tags`.
 - Injection: the `hc install DEST` subcommand plus the `deploy/` manifests.
 - The `-timeout` flag (default 3s).
 
@@ -34,7 +37,6 @@ Do NOT add without the owner's say-so. hc stays **one-shot**:
 - No central daemon, no long-running or listening process, no socket, no config
   file, no state.
 - No CLI flags beyond `-timeout` and the `install` subcommand.
-- `amqp` / `redis` / `mysql` probers are parked.
 
 Scope creep is the failure mode this project exists to resist. If a change adds
 surface area, stop and ask.
@@ -49,18 +51,20 @@ surface area, stop and ask.
 - `internal/probe/`: the probers.
   - `registry.go`: the `Prober` interface, the scheme→prober map, `register`,
     `Get`, `SupportedSchemes`. The only extension seam.
-  - `http.go`, `https.go`, `tcp.go`, `postgres.go`: one prober each, build-tagged
-    and self-registering in `init()`.
-  - `httpcore.go`: the shared hand-rolled HTTP/1.1 status probe (no `net/http`),
-    used by both `http` and `https`.
+  - `<scheme>.go`: one file per prober, build-tagged and self-registering in
+    `init()`. One nameable protocol per file.
+  - Shared probe machinery lives beside them: `httpcore.go` (the hand-rolled
+    HTTP/1.1 status probe behind `http`/`https`, no `net/http`) and
+    `handshake.go` (the `dial` + `handshake` helper the byte-level probers reuse
+    — dial, send a payload, judge the reply).
 
 ### Adding a protocol, the only sanctioned extension
 
 1. Add `internal/probe/<scheme>.go`: a `Prober` struct with one
    `Probe(ctx, *url.URL) error` method (return `nil` when healthy), a
    `//go:build !hc_slim || hc_<scheme>` tag, and `func init() { register("<scheme>", …) }`.
-2. Add `hc_<scheme>` to any bundle row in `.github/workflows/release.yml` that
-   should include it.
+2. Add `hc_<scheme>` to any bundle build (`hc-core`, `hc-sql`) in
+   `.goreleaser.yaml` that should include it.
 
 That is the entire change. If a protocol needs more, the design is wrong. Raise
 it, don't work around it.
