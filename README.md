@@ -109,10 +109,18 @@ As a build stage (recommended):
 COPY --from=ghcr.io/moq77111113/hc /hc /hc
 ```
 
-Or grab a [release binary](https://github.com/Moq77111113/hc/releases), or from source:
+Or grab a [release binary](https://github.com/Moq77111113/hc/releases) (named
+`hc_linux_amd64`, `hc_linux_arm64`, and the `hc-core` / `hc-sql` variants), or
+from source:
 
 ```sh
 go install github.com/Moq77111113/hc@latest
+```
+
+Ask any binary what it is:
+
+```sh
+hc version
 ```
 
 ## Missing a protocol?
