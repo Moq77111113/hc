@@ -27,6 +27,18 @@ func runHC(t *testing.T, args ...string) (int, string) {
 	return cmd.ProcessState.ExitCode(), string(out)
 }
 
+// assertOpenClosed checks scheme is healthy against addr and unhealthy against
+// a closed port on the same host: the shared shape of the connect-based probes.
+func assertOpenClosed(t *testing.T, scheme, addr string) {
+	t.Helper()
+	if code, out := runHC(t, scheme+"://"+addr); code != 0 {
+		t.Errorf("open: exit %d, want 0\n%s", code, out)
+	}
+	if code, out := runHC(t, scheme+"://"+hostOf(t, addr)+":1"); code != 1 {
+		t.Errorf("closed: exit %d, want 1\n%s", code, out)
+	}
+}
+
 // hostOf strips the port from a "host:port" endpoint.
 func hostOf(t *testing.T, addr string) string {
 	t.Helper()
