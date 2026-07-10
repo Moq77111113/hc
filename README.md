@@ -60,14 +60,6 @@ Set a deadline with `-timeout` (default `3s`):
 hc -timeout 1s http://localhost:8080/health
 ```
 
-### PostgreSQL readiness without a client
-
-Check PostgreSQL readiness without shipping `postgresql-client`. The `postgres`
-probe sends PostgreSQL's fixed `SSLRequest` packet; a live server replies with a
-single byte before authentication, so a valid reply proves the server is up and
-accepting connections. Same signal as `pg_isready`, no client library, no
-credentials.
-
 ## Health-check an image you don't own
 
 The pain doubles with third-party hardened images like Keycloak, Postgres, or a
@@ -78,7 +70,7 @@ Don't. Inject `hc` through a shared volume: the target image is never modified,
 and it all runs non-root.
 
 ```yaml
-# kubernetes 1.33+: mount hc straight from its image, read-only
+# kubernetes 1.33+: mount hc from its image, read-only
 volumes:
   - name: healthz
     image: { reference: ghcr.io/moq77111113/hc-core }
@@ -90,9 +82,9 @@ containers:
       exec: { command: ["/healthz/hc", "tcp://localhost:8080"] }
 ```
 
-Older clusters and Docker Compose use an init step that self-copies hc into the
-volume (`hc install /healthz/hc`, since a `scratch` image has no `cp`). Full
-manifests for image-volume, initContainer, and Compose live in [`deploy/`](deploy/).
+Older clusters and Docker Compose seed the volume with `hc install /healthz/hc`
+(a `scratch` image has no `cp`). Manifests for image-volume, initContainer, and
+Compose live in [`deploy/`](deploy/).
 
 ## Lean by build
 
@@ -117,21 +109,21 @@ As a build stage (recommended):
 COPY --from=ghcr.io/moq77111113/hc /hc /hc
 ```
 
-Prebuilt binaries: see the [releases page](https://github.com/Moq77111113/hc/releases).
-
-From source:
+Or grab a [release binary](https://github.com/Moq77111113/hc/releases), or from source:
 
 ```sh
 go install github.com/Moq77111113/hc@latest
 ```
 
+## Missing a protocol?
+
+`redis`, `mysql`, and `amqp` are on the list. Need one of those, or a scheme
+that isn't here? [Open an issue](https://github.com/Moq77111113/hc/issues), or send a PR.
+
 ## Philosophy
 
 `hc` answers one question: "is this endpoint alive?". No monitoring, no retries,
 no state, no metrics, no history. Want those? Wrong binary, on purpose.
-
-Adding a protocol is one file: a `Prober` that registers itself in `init()`,
-behind its own build tag.
 
 ## License
 
