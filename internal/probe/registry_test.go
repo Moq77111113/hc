@@ -2,14 +2,18 @@
 
 package probe
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
-func TestDefaultBuildRegistersAllSchemes(t *testing.T) {
-	const want = "http, https, mysql, pg, postgres, redis, tcp"
+func TestDefaultBuildRegistersCatalog(t *testing.T) {
+	names := SchemeNames()
+	want := strings.Join(names, ", ")
 	if got := SupportedSchemes(); got != want {
 		t.Fatalf("SupportedSchemes() = %q, want %q", got, want)
 	}
-	for _, s := range []string{"http", "https", "tcp", "postgres", "pg", "redis", "mysql"} {
+	for _, s := range names {
 		if _, ok := probers[s]; !ok {
 			t.Errorf("scheme %q not registered", s)
 		}
