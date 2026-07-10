@@ -1,0 +1,24 @@
+# hc healthcheck for a third-party image, injected via a shared volume.
+# hc-install seeds the volume before the app starts. Swap the app for yours.
+services:
+  hc-install:
+    image: ghcr.io/moq77111113/hc-core
+    command: ["install", "/healthz/hc"]
+    volumes:
+      - healthz:/healthz
+
+  app:
+    image: cgr.dev/chainguard/nginx:latest
+    depends_on:
+      hc-install:
+        condition: service_completed_successfully
+    volumes:
+      - healthz:/healthz:ro
+    healthcheck:
+      test: ["CMD", "/healthz/hc", "tcp://localhost:8080"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  healthz:

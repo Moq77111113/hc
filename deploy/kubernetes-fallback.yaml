@@ -1,0 +1,33 @@
+# Fallback for k8s < 1.33 (no image volumes). An initContainer copies hc into a
+# shared emptyDir: fsGroup lets the non-root init write it, `hc install` sets
+# 0755, the app mounts it read-only. No root anywhere. Swap the app for yours.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app
+spec:
+  securityContext:
+    fsGroup: 65532
+  volumes:
+    - name: healthz
+      emptyDir: {}
+  initContainers:
+    - name: hc-install
+      image: ghcr.io/moq77111113/hc-core
+      command: ["/hc", "install", "/healthz/hc"]
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+      volumeMounts:
+        - name: healthz
+          mountPath: /healthz
+  containers:
+    - name: app
+      image: cgr.dev/chainguard/nginx:latest
+      volumeMounts:
+        - name: healthz
+          mountPath: /healthz
+          readOnly: true
+      livenessProbe:
+        exec:
+          command: ["/healthz/hc", "tcp://localhost:8080"]

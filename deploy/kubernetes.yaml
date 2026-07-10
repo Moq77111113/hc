@@ -1,0 +1,23 @@
+# hc liveness probe for a third-party image, k8s 1.33+ (image-volume runtime).
+# hc mounts read-only, the non-root app execs it. No initContainer, no fsGroup.
+# Swap the app container for your own image.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app
+spec:
+  volumes:
+    - name: healthz
+      image:
+        reference: ghcr.io/moq77111113/hc-core
+        pullPolicy: IfNotPresent
+  containers:
+    - name: app
+      image: cgr.dev/chainguard/nginx:latest
+      volumeMounts:
+        - name: healthz
+          mountPath: /healthz
+          readOnly: true
+      livenessProbe:
+        exec:
+          command: ["/healthz/hc", "tcp://localhost:8080"]

@@ -1,0 +1,48 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.26"
+      - run: go build ./...
+      - run: go test ./...
+
+  slim:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tags:
+          - "hc_slim hc_http"
+          - "hc_slim hc_https"
+          - "hc_slim hc_tcp"
+          - "hc_slim hc_postgres"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.26"
+      - run: go build -tags "${{ matrix.tags }}" -o /dev/null .
+      - run: go test -tags "${{ matrix.tags }}" ./...
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.26"
+      - uses: golangci/golangci-lint-action@v9
+        with:
+          version: latest

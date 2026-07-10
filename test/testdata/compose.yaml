@@ -1,0 +1,26 @@
+# Runnable mirror of ../../deploy/docker-compose.yaml: same injection shape
+# (hc-install seeds a shared volume, the app execs the injected binary from
+# its healthcheck), swapped to the locally-built image and a pullable app so
+# TestComposeInjectionGoesHealthy can actually bring it up.
+services:
+  hc-install:
+    image: hc-it:latest
+    command: ["install", "/healthz/hc"]
+    volumes:
+      - healthz:/healthz
+
+  app:
+    image: nginx:alpine
+    depends_on:
+      hc-install:
+        condition: service_completed_successfully
+    volumes:
+      - healthz:/healthz:ro
+    healthcheck:
+      test: ["CMD", "/healthz/hc", "tcp://localhost:80"]
+      interval: 2s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  healthz:
