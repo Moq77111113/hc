@@ -10,5 +10,8 @@ func main() {
 	if len(probe.Catalog) == 0 {
 		log.Fatal("empty catalog")
 	}
-	// Generation steps are wired in later tasks.
+
+	if err := writeGoreleaser(".goreleaser.yaml"); err != nil {
+		log.Fatalf("goreleaser: %v", err)
+	}
 }
