@@ -10,6 +10,21 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
+// Pinned images the probes are exercised against.
+const (
+	pgImage    = "postgres:18-alpine"
+	redisImage = "redis:8-alpine"
+	nginxImage = "nginx:alpine"
+)
+
+// Default ports each probe connects to, shared by the fixture and its test.
+const (
+	pgPort    = "5432"
+	redisPort = "6379"
+	httpPort  = "80"
+	httpsPort = "443"
+)
+
 // start launches req, registers cleanup, and fails the test on error.
 func start(t *testing.T, req testcontainers.ContainerRequest) testcontainers.Container {
 	t.Helper()
@@ -41,8 +56,8 @@ func onNetwork(req testcontainers.ContainerRequest, nw *testcontainers.DockerNet
 
 func pgRequest() testcontainers.ContainerRequest {
 	return testcontainers.ContainerRequest{
-		Image:        "postgres:18-alpine",
-		ExposedPorts: []string{"5432/tcp"},
+		Image:        pgImage,
+		ExposedPorts: []string{pgPort + "/tcp"},
 		Env:          map[string]string{"POSTGRES_PASSWORD": "pw"},
 		WaitingFor:   wait.ForLog("database system is ready to accept connections").WithOccurrence(2),
 	}
@@ -50,8 +65,8 @@ func pgRequest() testcontainers.ContainerRequest {
 
 func redisRequest() testcontainers.ContainerRequest {
 	return testcontainers.ContainerRequest{
-		Image:        "redis:8-alpine",
-		ExposedPorts: []string{"6379/tcp"},
+		Image:        redisImage,
+		ExposedPorts: []string{redisPort + "/tcp"},
 		WaitingFor:   wait.ForLog("Ready to accept connections"),
 	}
 }
@@ -65,8 +80,8 @@ func redisAuthRequest() testcontainers.ContainerRequest {
 
 func nginxRequest() testcontainers.ContainerRequest {
 	return testcontainers.ContainerRequest{
-		Image:        "nginx:alpine",
-		ExposedPorts: []string{"80/tcp"},
+		Image:        nginxImage,
+		ExposedPorts: []string{httpPort + "/tcp"},
 		WaitingFor:   wait.ForHTTP("/"),
 	}
 }
@@ -77,9 +92,9 @@ func nginxTLSRequest(t *testing.T) testcontainers.ContainerRequest {
 	dir := t.TempDir()
 	selfSignedCert(t, dir)
 	return testcontainers.ContainerRequest{
-		Image:        "nginx:alpine",
-		ExposedPorts: []string{"443/tcp"},
-		WaitingFor:   wait.ForListeningPort("443/tcp"),
+		Image:        nginxImage,
+		ExposedPorts: []string{httpsPort + "/tcp"},
+		WaitingFor:   wait.ForListeningPort(httpsPort + "/tcp"),
 		Files: []testcontainers.ContainerFile{
 			{HostFilePath: filepath.Join(dir, "cert.pem"), ContainerFilePath: "/etc/nginx/certs/cert.pem", FileMode: 0o644},
 			{HostFilePath: filepath.Join(dir, "key.pem"), ContainerFilePath: "/etc/nginx/certs/key.pem", FileMode: 0o644},

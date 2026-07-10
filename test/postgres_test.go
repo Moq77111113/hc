@@ -8,7 +8,7 @@ import (
 
 func TestPostgresProbe(t *testing.T) {
 	testcontainers.SkipIfProviderIsNotHealthy(t)
-	addr := endpoint(t, start(t, pgRequest()), "5432")
+	addr := endpoint(t, start(t, pgRequest()), pgPort)
 
 	assertOpenClosed(t, "postgres", addr)
 }

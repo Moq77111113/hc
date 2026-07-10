@@ -9,7 +9,7 @@ import (
 
 func TestTCPProbe(t *testing.T) {
 	testcontainers.SkipIfProviderIsNotHealthy(t)
-	addr := endpoint(t, start(t, nginxRequest()), "80")
+	addr := endpoint(t, start(t, nginxRequest()), httpPort)
 
 	assertOpenClosed(t, "tcp", addr)
 }
