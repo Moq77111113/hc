@@ -89,5 +89,6 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "  hc http://localhost:8080/health\n")
 	fmt.Fprintf(os.Stderr, "  hc tcp://localhost:6379\n")
 	fmt.Fprintf(os.Stderr, "  hc postgres://localhost:5432\n")
+	fmt.Fprintf(os.Stderr, "  hc redis://localhost:6379\n")
 	fmt.Fprintf(os.Stderr, "  hc install /healthz/hc\n")
 }
