@@ -44,7 +44,9 @@ func main() {
 // runVersion prints the build version and exits healthy, so `hc version`
 // composes with the same exit-code contract as every other invocation.
 func runVersion(out io.Writer) int {
-	fmt.Fprintf(out, "hc %s\n", version)
+	if _, err := fmt.Fprintf(out, "hc %s\n", version); err != nil {
+		return exitUnhealthy
+	}
 	return exitHealthy
 }
 
