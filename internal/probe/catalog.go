@@ -10,12 +10,6 @@ type Scheme struct {
 	Aliases []string
 }
 
-// Bundle is a slim binary shipping a fixed scheme subset.
-type Bundle struct {
-	Binary  string
-	Schemes []Scheme
-}
-
 var (
 	HTTP     = Scheme{Name: "http"}
 	HTTPS    = Scheme{Name: "https"}
@@ -27,13 +21,6 @@ var (
 
 // Catalog is every scheme; the full hc binary ships all of them.
 var Catalog = []Scheme{HTTP, HTTPS, TCP, Postgres, MySQL, Redis}
-
-// Bundles are the slim binaries. Schemes reference the vars above, so a typo is
-// a compile error rather than a silent bad build.
-var Bundles = []Bundle{
-	{Binary: "hc-core", Schemes: []Scheme{HTTP, HTTPS, TCP}},
-	{Binary: "hc-sql", Schemes: []Scheme{TCP, Postgres, MySQL}},
-}
 
 // SchemeNames returns every scheme and alias name, sorted — the full set the
 // default binary registers.
