@@ -14,4 +14,8 @@ func main() {
 	if err := writeGoreleaser(".goreleaser.yaml"); err != nil {
 		log.Fatalf("goreleaser: %v", err)
 	}
+
+	if err := writeCIMatrix(".github/workflows/ci.yml"); err != nil {
+		log.Fatalf("ci matrix: %v", err)
+	}
 }
