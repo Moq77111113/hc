@@ -19,3 +19,14 @@ func TestDefaultBuildRegistersCatalog(t *testing.T) {
 		}
 	}
 }
+
+func TestRegisterBindsSchemeAndAliases(t *testing.T) {
+	pg, okPg := Get("postgres")
+	alias, okAlias := Get("pg")
+	if !okPg || !okAlias {
+		t.Fatal("postgres and its alias pg must both be registered")
+	}
+	if pg != alias {
+		t.Error("postgres and pg must resolve to the same prober")
+	}
+}

@@ -8,7 +8,7 @@ import (
 	"net/url"
 )
 
-func init() { register("https", httpsProber{}) }
+func init() { register(HTTPS, httpsProber{}) }
 
 // defaultHTTPSPort is used when the target URL omits a port.
 const defaultHTTPSPort = "443"

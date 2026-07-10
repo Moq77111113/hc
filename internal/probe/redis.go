@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func init() { register("redis", redisProber{}) }
+func init() { register(Redis, redisProber{}) }
 
 const (
 	// redisPing is the inline PING command; redisPong is its healthy reply.

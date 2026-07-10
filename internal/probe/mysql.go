@@ -10,7 +10,7 @@ import (
 	"net/url"
 )
 
-func init() { register("mysql", mysqlProber{}) }
+func init() { register(MySQL, mysqlProber{}) }
 
 const (
 	// mysqlPacketHeaderLen is the 4-byte length+sequence header prefixing every

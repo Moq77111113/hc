@@ -20,9 +20,14 @@ type Prober interface {
 // slim build carries only the probers it was built with.
 var probers = map[string]Prober{}
 
-// register binds a scheme to its Prober. Called from each prober's init().
-func register(scheme string, p Prober) {
-	probers[scheme] = p
+// register binds a scheme and its aliases to their Prober. Called from each
+// prober's init() with the catalogued Scheme, so only catalogued schemes can
+// register and aliases stay defined once, in the catalog.
+func register(s Scheme, p Prober) {
+	probers[s.Name] = p
+	for _, alias := range s.Aliases {
+		probers[alias] = p
+	}
 }
 
 // Get returns the Prober registered for scheme, if any.

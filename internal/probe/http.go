@@ -8,7 +8,7 @@ import (
 	"net/url"
 )
 
-func init() { register("http", httpProber{}) }
+func init() { register(HTTP, httpProber{}) }
 
 // defaultHTTPPort is used when the target URL omits a port.
 const defaultHTTPPort = "80"
