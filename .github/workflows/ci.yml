@@ -50,7 +50,14 @@ jobs:
         with:
           go-version: "1.26"
       - run: go generate ./...
-      - run: git diff --exit-code
+      # Fails on any drift, including new untracked files git diff alone misses.
+      - run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::go generate produced uncommitted changes — run 'go generate ./...' and commit:"
+            git status --porcelain
+            git diff
+            exit 1
+          fi
 
   lint:
     runs-on: ubuntu-latest
