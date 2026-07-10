@@ -1,0 +1,66 @@
+version: 2
+
+# Loose release binaries carry the same provenance as the container images:
+# static + trimmed, checksummed, SBOM'd, and keyless-signed with cosign.
+# The "install hc, trust nothing" pitch has to hold for the download too.
+
+builds:
+  - id: hc
+    binary: hc
+    main: .
+    env: [CGO_ENABLED=0]
+    flags: [-trimpath]
+    ldflags: ["-s -w -X main.version={{ .Version }}"]
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    goos: [linux]
+    goarch: [amd64, arm64]
+
+  - id: hc-core
+    binary: hc-core
+    main: .
+    env: [CGO_ENABLED=0]
+    flags: [-trimpath, -tags, "hc_slim hc_http hc_https hc_tcp"]
+    ldflags: ["-s -w -X main.version={{ .Version }}"]
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    goos: [linux]
+    goarch: [amd64, arm64]
+
+  - id: hc-sql
+    binary: hc-sql
+    main: .
+    env: [CGO_ENABLED=0]
+    flags: [-trimpath, -tags, "hc_slim hc_tcp hc_postgres"]
+    ldflags: ["-s -w -X main.version={{ .Version }}"]
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    goos: [linux]
+    goarch: [amd64, arm64]
+
+# Ship raw binaries, not tarballs: hc is a single file you COPY into an image.
+archives:
+  - id: bins
+    formats: [binary]
+    name_template: "{{ .Binary }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+sboms:
+  - artifacts: binary
+
+# Keyless: same GitHub OIDC identity that signs the images, logged to Rekor.
+# Signing checksums.txt covers every binary through its recorded hash.
+signs:
+  - cmd: cosign
+    signature: "${artifact}.sig"
+    certificate: "${artifact}.pem"
+    args:
+      - sign-blob
+      - "--yes"
+      - "--output-signature=${signature}"
+      - "--output-certificate=${certificate}"
+      - "${artifact}"
+    artifacts: checksum
+
+release:
+  prerelease: auto
