@@ -23,7 +23,7 @@ func install(dest string) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = os.Remove(tmp.Name()) }()
+	defer func() { _ = os.Remove(tmp.Name()) }() //nolint:gosec // our own temp file
 
 	if _, err := io.Copy(tmp, src); err != nil {
 		_ = tmp.Close()
@@ -35,5 +35,5 @@ func install(dest string) error {
 	if err := os.Chmod(tmp.Name(), 0o755); err != nil { //nolint:gosec // must be executable
 		return err
 	}
-	return os.Rename(tmp.Name(), dest)
+	return os.Rename(tmp.Name(), dest) //nolint:gosec // operator-chosen install path
 }
