@@ -1,4 +1,4 @@
-package test
+package support
 
 import (
 	"crypto/ecdsa"
@@ -10,47 +10,13 @@ import (
 	"math/big"
 	"net"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"testing"
 	"time"
 )
 
-// runHC runs the built binary and returns its exit code and combined output.
-func runHC(t *testing.T, args ...string) (int, string) {
-	t.Helper()
-	cmd := exec.Command(hcBinary, args...)
-	out, err := cmd.CombinedOutput()
-	if cmd.ProcessState == nil {
-		t.Fatalf("hc did not run: %v\n%s", err, out)
-	}
-	return cmd.ProcessState.ExitCode(), string(out)
-}
-
-// assertOpenClosed checks scheme is healthy against addr and unhealthy against
-// a closed port on the same host: the shared shape of the connect-based probes.
-func assertOpenClosed(t *testing.T, scheme, addr string) {
-	t.Helper()
-	if code, out := runHC(t, scheme+"://"+addr); code != 0 {
-		t.Errorf("open: exit %d, want 0\n%s", code, out)
-	}
-	if code, out := runHC(t, scheme+"://"+hostOf(t, addr)+":1"); code != 1 {
-		t.Errorf("closed: exit %d, want 1\n%s", code, out)
-	}
-}
-
-// hostOf strips the port from a "host:port" endpoint.
-func hostOf(t *testing.T, addr string) string {
-	t.Helper()
-	h, _, err := net.SplitHostPort(addr)
-	if err != nil {
-		t.Fatalf("split %q: %v", addr, err)
-	}
-	return h
-}
-
-// selfSignedCert writes cert.pem and key.pem into dir, valid for localhost and 127.0.0.1.
-func selfSignedCert(t *testing.T, dir string) {
+// SelfSignedCert writes cert.pem and key.pem into dir, valid for localhost and 127.0.0.1.
+func SelfSignedCert(t *testing.T, dir string) {
 	t.Helper()
 
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
