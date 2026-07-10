@@ -10,6 +10,9 @@ import (
 
 func init() { register("https", httpsProber{}) }
 
+// defaultHTTPSPort is used when the target URL omits a port.
+const defaultHTTPSPort = "443"
+
 // httpsProber probes over TLS. It deliberately skips certificate validation:
 // hc checks liveness ("does it answer over TLS?"), not cert validity, so it
 // still works against internal/self-signed endpoints. ServerName is set for SNI.
@@ -20,7 +23,7 @@ func (httpsProber) Probe(ctx context.Context, target *url.URL) error {
 		ServerName:         target.Hostname(),
 		InsecureSkipVerify: true, //nolint:gosec // liveness probe, not cert validation (see type doc)
 	}}
-	conn, err := d.DialContext(ctx, "tcp", hostPort(target, "443"))
+	conn, err := d.DialContext(ctx, "tcp", hostPort(target, defaultHTTPSPort))
 	if err != nil {
 		return err
 	}

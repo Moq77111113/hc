@@ -1,4 +1,4 @@
-package test
+package support
 
 import (
 	"crypto/ecdsa"
@@ -10,35 +10,13 @@ import (
 	"math/big"
 	"net"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"testing"
 	"time"
 )
 
-// runHC runs the built binary and returns its exit code and combined output.
-func runHC(t *testing.T, args ...string) (int, string) {
-	t.Helper()
-	cmd := exec.Command(hcBinary, args...)
-	out, err := cmd.CombinedOutput()
-	if cmd.ProcessState == nil {
-		t.Fatalf("hc did not run: %v\n%s", err, out)
-	}
-	return cmd.ProcessState.ExitCode(), string(out)
-}
-
-// hostOf strips the port from a "host:port" endpoint.
-func hostOf(t *testing.T, addr string) string {
-	t.Helper()
-	h, _, err := net.SplitHostPort(addr)
-	if err != nil {
-		t.Fatalf("split %q: %v", addr, err)
-	}
-	return h
-}
-
-// selfSignedCert writes cert.pem and key.pem into dir, valid for localhost and 127.0.0.1.
-func selfSignedCert(t *testing.T, dir string) {
+// SelfSignedCert writes cert.pem and key.pem into dir, valid for localhost and 127.0.0.1.
+func SelfSignedCert(t *testing.T, dir string) {
 	t.Helper()
 
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)

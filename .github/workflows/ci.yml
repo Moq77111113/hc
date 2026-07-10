@@ -54,5 +54,5 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version: "1.26"
-      - run: go test ./...
+      - run: go test -v ./... # -v so the log shows RUN/PASS, not a silent SKIP
         working-directory: test

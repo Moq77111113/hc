@@ -12,6 +12,8 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/network"
 	"github.com/testcontainers/testcontainers-go/wait"
+
+	"github.com/Moq77111113/hc/test/support"
 )
 
 // TestScratchImageProbes runs the shipped scratch image against real services
@@ -25,8 +27,8 @@ func TestScratchImageProbes(t *testing.T) {
 		t.Fatalf("network: %v", err)
 	}
 
-	start(t, onNetwork(pgRequest(), nw, "pg"))
-	start(t, onNetwork(nginxTLSRequest(t), nw, "web"))
+	support.Start(t, support.OnNetwork(pgRequest(), nw, "pg"))
+	support.Start(t, support.OnNetwork(nginxTLSRequest(t), nw, "web"))
 
 	if code := runHCImage(t, nw.Name, "tcp://pg:5432"); code != 0 {
 		t.Errorf("image tcp probe: exit %d, want 0", code)
@@ -39,8 +41,8 @@ func TestScratchImageProbes(t *testing.T) {
 // runHCImage runs the scratch image as a one-shot container on nw and returns its exit code.
 func runHCImage(t *testing.T, nw, target string) int {
 	t.Helper()
-	c := start(t, testcontainers.ContainerRequest{
-		Image:      hcImage,
+	c := support.Start(t, testcontainers.ContainerRequest{
+		Image:      support.Image,
 		Networks:   []string{nw},
 		Cmd:        []string{target},
 		WaitingFor: wait.ForExit(),
@@ -57,8 +59,8 @@ func TestInstallInContainer(t *testing.T) {
 	testcontainers.SkipIfProviderIsNotHealthy(t)
 	outDir := t.TempDir()
 
-	c := start(t, testcontainers.ContainerRequest{
-		Image:      hcImage,
+	c := support.Start(t, testcontainers.ContainerRequest{
+		Image:      support.Image,
 		Cmd:        []string{"install", "/out/hc"},
 		WaitingFor: wait.ForExit(),
 		HostConfigModifier: func(hc *container.HostConfig) {
