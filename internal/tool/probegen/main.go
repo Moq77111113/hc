@@ -2,13 +2,10 @@ package main
 
 import (
 	"log"
-
-	"github.com/Moq77111113/hc/internal/probe"
 )
 
 func main() {
-	if len(probe.Catalog) == 0 {
-		log.Fatal("empty catalog")
+	if err := writeSlimTests("internal/probe"); err != nil {
+		log.Fatalf("slim tests: %v", err)
 	}
-	// Generation steps are wired in later tasks.
 }
