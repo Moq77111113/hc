@@ -11,8 +11,7 @@ import (
 )
 
 func init() {
-	register("postgres", postgresProber{})
-	register("pg", postgresProber{})
+	register(Postgres, postgresProber{})
 }
 
 // pgSSLRequestCode is the magic request code of the PostgreSQL SSLRequest packet.

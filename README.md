@@ -94,11 +94,12 @@ Compose live in [`deploy/`](deploy/).
 The default binary carries every probe. Need less surface? Pull a variant, and
 the probes you don't use aren't compiled in:
 
-| Image     | Probes               | Size     |
-| --------- | -------------------- | -------- |
-| `hc`      | all                  | ~4.5 MB  |
-| `hc-core` | http, https, tcp     | ~4.5 MB  |
-| `hc-sql`  | tcp, postgres, mysql | ~2.3 MB  |
+<!-- probes:begin -->
+| Binary | Schemes |
+|---|---|
+| `hc-core` | http, https, tcp |
+| `hc-sql` | tcp, postgres, mysql |
+<!-- probes:end -->
 
 ```dockerfile
 COPY --from=ghcr.io/moq77111113/hc-sql /hc /hc

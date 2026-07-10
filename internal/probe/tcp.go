@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	register("tcp", tcpProber{})
+	register(TCP, tcpProber{})
 }
 
 // tcpProber treats a successful TCP connection as healthy.

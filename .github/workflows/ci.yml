@@ -24,10 +24,16 @@ jobs:
     strategy:
       matrix:
         tags:
+          # probes:begin
           - "hc_slim hc_http"
           - "hc_slim hc_https"
           - "hc_slim hc_tcp"
           - "hc_slim hc_postgres"
+          - "hc_slim hc_mysql"
+          - "hc_slim hc_redis"
+          - "hc_slim hc_http hc_https hc_tcp"
+          - "hc_slim hc_tcp hc_postgres hc_mysql"
+          # probes:end
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v6
@@ -35,6 +41,23 @@ jobs:
           go-version: "1.26"
       - run: go build -tags "${{ matrix.tags }}" -o /dev/null .
       - run: go test -tags "${{ matrix.tags }}" ./...
+
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.26"
+      - run: go generate ./...
+      # Fails on any drift, including new untracked files git diff alone misses.
+      - run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::go generate produced uncommitted changes — run 'go generate ./...' and commit:"
+            git status --porcelain
+            git diff
+            exit 1
+          fi
 
   lint:
     runs-on: ubuntu-latest

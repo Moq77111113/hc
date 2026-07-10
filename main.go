@@ -9,6 +9,8 @@
 //	HEALTHCHECK CMD ["/hc", "http://localhost:8080/health"]
 package main
 
+//go:generate go run ./internal/tool/probegen
+
 import (
 	"context"
 	"flag"

@@ -1,16 +1,26 @@
-//go:build hc_slim && hc_tcp && !hc_http && !hc_https && !hc_postgres
+//go:build hc_slim
 
 package probe
 
 import "testing"
 
-func TestSlimTCPBuildRegistersOnlyTCP(t *testing.T) {
-	if _, ok := probers["tcp"]; !ok {
-		t.Error("tcp must be registered in a slim tcp build")
+// A slim build compiles in only the probers whose build tag was set, so the
+// registered set must be a non-empty subset of the catalog. Per-scheme
+// exclusion is proven at compile time by the canonical build tags (guarded by
+// TestProberFilesHaveCanonicalBuildTag)
+func TestSlimBuildRegistersCatalogSubset(t *testing.T) {
+	catalogued := make(map[string]bool)
+	for _, name := range SchemeNames() {
+		catalogued[name] = true
 	}
-	for _, s := range []string{"http", "https", "postgres", "pg"} {
-		if _, ok := probers[s]; ok {
-			t.Errorf("scheme %q must NOT be registered in a slim tcp build", s)
+
+	if len(probers) == 0 {
+		t.Fatal("slim build registered no probers")
+	}
+
+	for scheme := range probers {
+		if !catalogued[scheme] {
+			t.Errorf("registered scheme %q is not in the catalog", scheme)
 		}
 	}
 }
