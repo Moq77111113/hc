@@ -74,6 +74,10 @@ it, don't work around it.
   why, not prose.
 - WHY-comments only for the non-obvious (the postgres SSLRequest trick, the
   hand-rolled HTTP dropping net/http, the https skip-verify). No WHAT-comments.
+- No inline comments explaining what a line does. If a line needs one to be
+  understood, rename or extract until it doesn't; refactor over annotate. The
+  only comments inside a function body are the rare WHY above and `//nolint`
+  directives.
 - No new runtime dependencies. `CGO_ENABLED=0` must keep building on `scratch`.
   The standard library is the ceiling.
 
