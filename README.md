@@ -53,6 +53,7 @@ hc mysql://localhost:3306         # healthy if MySQL answers its handshake
 | `mysql`           | the server sends its handshake greeting (no auth)    |
 | `redis`           | the server answers `PING` (`+PONG` or `-NOAUTH`)     |
 | `amqp`            | the broker answers the AMQP 0-9-1 handshake          |
+| `grpc`            | the gRPC health service reports `SERVING`            |
 
 `https` checks that the service answers over TLS; it does **not** validate the
 certificate. hc reports liveness, not cert validity, so it works against internal
