@@ -23,10 +23,12 @@ var (
 	MySQL = Scheme{Name: "mysql"}
 	// Redis probes redis:// targets with an inline PING.
 	Redis = Scheme{Name: "redis"}
+	// AMQP probes amqp:// targets via the 0-9-1 protocol handshake.
+	AMQP = Scheme{Name: "amqp"}
 )
 
 // Catalog is every scheme; the full hc binary ships all of them.
-var Catalog = []Scheme{HTTP, HTTPS, TCP, Postgres, MySQL, Redis}
+var Catalog = []Scheme{HTTP, HTTPS, TCP, Postgres, MySQL, Redis, AMQP}
 
 // SchemeNames returns every scheme and alias name, sorted — the full set the
 // default binary registers.
