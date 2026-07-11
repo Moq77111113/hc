@@ -25,10 +25,12 @@ var (
 	Redis = Scheme{Name: "redis"}
 	// AMQP probes amqp:// targets via the 0-9-1 protocol handshake.
 	AMQP = Scheme{Name: "amqp"}
+	// GRPC probes grpc:// targets via the standard Health/Check RPC over HTTP/2.
+	GRPC = Scheme{Name: "grpc"}
 )
 
 // Catalog is every scheme; the full hc binary ships all of them.
-var Catalog = []Scheme{HTTP, HTTPS, TCP, Postgres, MySQL, Redis, AMQP}
+var Catalog = []Scheme{HTTP, HTTPS, TCP, Postgres, MySQL, Redis, AMQP, GRPC}
 
 // SchemeNames returns every scheme and alias name, sorted — the full set the
 // default binary registers.
