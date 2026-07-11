@@ -42,22 +42,20 @@ type frameHeader struct {
 	streamID uint32
 }
 
-// writeFrame writes one HTTP/2 frame: the 9-byte header then payload.
+// appendFrame appends one HTTP/2 frame — the 9-byte header then payload — to dst.
+func appendFrame(dst []byte, kind, flags byte, streamID uint32, payload []byte) []byte {
+	n := len(payload)
+	dst = append(dst,
+		byte((n>>16)&0xff), byte((n>>8)&0xff), byte(n&0xff),
+		kind, flags,
+		byte((streamID>>24)&0xff), byte((streamID>>16)&0xff), byte((streamID>>8)&0xff), byte(streamID&0xff),
+	)
+	return append(dst, payload...)
+}
+
+// writeFrame writes one HTTP/2 frame to w.
 func writeFrame(w io.Writer, kind, flags byte, streamID uint32, payload []byte) error {
-	var header [frameHeaderLen]byte
-	header[0] = byte(len(payload) >> 16)
-	header[1] = byte(len(payload) >> 8)
-	header[2] = byte(len(payload))
-	header[3] = kind
-	header[4] = flags
-	binary.BigEndian.PutUint32(header[5:], streamID)
-	if _, err := w.Write(header[:]); err != nil {
-		return err
-	}
-	if len(payload) == 0 {
-		return nil
-	}
-	_, err := w.Write(payload)
+	_, err := w.Write(appendFrame(nil, kind, flags, streamID, payload))
 	return err
 }
 

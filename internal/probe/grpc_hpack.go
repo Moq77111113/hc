@@ -19,17 +19,17 @@ func hpackIndexed(index byte) byte { return 0x80 | index }
 // hpackInt appends value as an HPACK integer with an N-bit prefix (RFC 7541
 // §5.1). pattern carries the representation's high bits above the prefix.
 func hpackInt(dst []byte, value, prefixBits int, pattern byte) []byte {
-	max := (1 << prefixBits) - 1
-	if value < max {
-		return append(dst, pattern|byte(value))
+	limit := (1 << prefixBits) - 1
+	if value < limit {
+		return append(dst, pattern|byte(value&0xff))
 	}
-	dst = append(dst, pattern|byte(max))
-	value -= max
+	dst = append(dst, pattern|byte(limit&0xff))
+	value -= limit
 	for value >= 128 {
-		dst = append(dst, byte(value%128+128))
+		dst = append(dst, byte((value%128+128)&0xff))
 		value /= 128
 	}
-	return append(dst, byte(value))
+	return append(dst, byte(value&0xff))
 }
 
 // hpackString appends a length-prefixed raw (non-Huffman) string literal.

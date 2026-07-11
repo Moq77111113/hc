@@ -90,13 +90,6 @@ func writeHealthCall(w io.Writer, authority string) error {
 	return err
 }
 
-// appendFrame appends one framed message to buf.
-func appendFrame(buf []byte, kind, flags byte, streamID uint32, payload []byte) []byte {
-	buf = append(buf, byte(len(payload)>>16), byte(len(payload)>>8), byte(len(payload)), kind, flags)
-	buf = append(buf, byte(streamID>>24), byte(streamID>>16), byte(streamID>>8), byte(streamID))
-	return append(buf, payload...)
-}
-
 // skip discards n payload bytes of a frame the probe does not read.
 func skip(r io.Reader, n uint32) error {
 	_, err := io.CopyN(io.Discard, r, int64(n))
