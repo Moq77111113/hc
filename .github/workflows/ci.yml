@@ -31,6 +31,7 @@ jobs:
           - "hc_slim hc_postgres"
           - "hc_slim hc_mysql"
           - "hc_slim hc_redis"
+          - "hc_slim hc_amqp"
           - "hc_slim hc_http hc_https hc_tcp"
           - "hc_slim hc_tcp hc_postgres hc_mysql"
           # probes:end
