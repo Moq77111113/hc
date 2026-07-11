@@ -52,6 +52,7 @@ hc mysql://localhost:3306         # healthy if MySQL answers its handshake
 | `postgres` / `pg` | the server answers the readiness handshake (no auth) |
 | `mysql`           | the server sends its handshake greeting (no auth)    |
 | `redis`           | the server answers `PING` (`+PONG` or `-NOAUTH`)     |
+| `amqp`            | the broker answers the AMQP 0-9-1 handshake          |
 
 `https` checks that the service answers over TLS; it does **not** validate the
 certificate. hc reports liveness, not cert validity, so it works against internal
@@ -129,8 +130,7 @@ hc version
 
 ## Missing a protocol?
 
-`amqp` is on the list. Need it, or a scheme
-that isn't here? [Open an issue](https://github.com/Moq77111113/hc/issues), or send a PR.
+Need a scheme that isn't here? [Open an issue](https://github.com/Moq77111113/hc/issues), or send a PR.
 
 ## Philosophy
 
